@@ -107,8 +107,8 @@ For example:
       raise PageLoadError.new("Page load was not successful (Code: #{response_code.inspect}):\n#{formatted_error}") unless success_code?
 
       reset
-
-      @current_url  = url
+      
+      @current_url = fully_qualify_current_url(url)
       @http_method  = http_method
       @data         = data
 
@@ -237,12 +237,25 @@ For example:
 
   private
 
+    def fully_qualify_current_url(url)
+      return url if URI.parse(url).absolute?
+      scheme = "http"
+      if current_url && uri=URI.parse(current_url)
+        scheme = uri.scheme if uri.absolute?
+      end
+      "#{scheme}://#{current_host}#{url}"
+    end
+
     def response_location
       response.headers["Location"]
     end
 
     def current_host
-      URI.parse(current_url).host || "www.example.com"
+      if current_url && host=URI.parse(current_url).host 
+        host
+      else
+        "www.example.com"
+      end
     end
 
     def response_location_host

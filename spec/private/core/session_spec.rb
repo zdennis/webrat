@@ -119,7 +119,7 @@ describe Webrat::Session do
 
       webrat_session.request_page("/oldurl", :get, {})
 
-      webrat_session.current_url.should == "/newurl"
+      webrat_session.current_url.should == "http://www.example.com/newurl"
     end
 
     it "should now follow external redirects" do
@@ -127,7 +127,18 @@ describe Webrat::Session do
 
       webrat_session.request_page("/oldurl", :get, {})
 
-      webrat_session.current_url.should == "/oldurl"
+      webrat_session.current_url.should == "http://www.example.com/oldurl"
+    end
+    
+    it "should expand a relative url to an absolute url" do
+      webrat_session.request_page("/contacts", :get, {})
+      webrat_session.current_url.should == "http://www.example.com/contacts"
+    end
+    
+    it "should expand a relative url to an absolute url using the last known host" do
+      webrat_session.request_page("http://foobar.example.com/contacts", :get, {})
+      webrat_session.request_page("/customers", :get, {})
+      webrat_session.current_url.should == "http://foobar.example.com/customers"
     end
   end
 

@@ -37,7 +37,7 @@ describe "visit" do
 
     visit("/oldurl")
 
-    current_url.should == "/newurl"
+    current_url.should == "http://www.example.com/newurl"
   end
 
   it "should not follow external redirects" do
@@ -45,7 +45,7 @@ describe "visit" do
 
     visit("/oldurl")
 
-    current_url.should == "/oldurl"
+    current_url.should == "http://www.example.com/oldurl"
   end
 end
 
