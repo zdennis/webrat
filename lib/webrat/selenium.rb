@@ -7,6 +7,7 @@ require "webrat/selenium/matchers"
 require "webrat/core_extensions/tcp_socket"
 
 module Webrat
+
   # To use Webrat's Selenium support, you'll need the selenium-client gem installed.
   # Activate it with (for example, in your <tt>env.rb</tt>):
   #

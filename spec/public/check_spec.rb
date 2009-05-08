@@ -1,7 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + "/../spec_helper")
+require 'ruby-debug'
+require 'json'
 
 describe "check" do
-  it "should fail if no checkbox found" do
+  context "when no checkbox is found" do
     with_html <<-HTML
       <html>
         <form method="post" action="/login">
@@ -9,10 +11,16 @@ describe "check" do
       </html>
     HTML
 
-    lambda { check "remember_me" }.should raise_error(Webrat::NotFoundError)
+    simulated "should raise an error" do
+      lambda { check "remember_me" }.should raise_error(Webrat::NotFoundError)
+    end
+    
+    automated "should raise an error" do
+      lambda { check "remember_me" }.should raise_error(Selenium::CommandError)
+    end
   end
 
-  it "should fail if input is not a checkbox" do
+  context "when the input is not a checkbox" do
     with_html <<-HTML
       <html>
         <form method="post" action="/login">
@@ -20,11 +28,17 @@ describe "check" do
         </form>
       </html>
     HTML
-
-    lambda { check "remember_me" }.should raise_error(Webrat::NotFoundError)
+    
+    simulated "should raise an error" do
+      lambda { check "remember_me" }.should raise_error(Webrat::NotFoundError)
+    end
+    
+    automated "should not raise an error" do
+      lambda { check "remember_me" }.should_not raise_error
+    end
   end
-
-  it "should check rails style checkboxes" do
+  
+  context "when checking rails style checkboxes" do
     with_html <<-HTML
       <html>
       <form method="get" action="/login">
@@ -35,13 +49,19 @@ describe "check" do
       </form>
       </html>
     HTML
-
-    webrat_session.should_receive(:get).with("/login", "user" => {"tos" => "1"})
-    check "TOS"
-    click_button
+    
+    simulated "should check the checkbox" do
+      webrat_session.should_receive(:get).with("/login", "user" => {"tos" => "1"})
+      check "TOS"
+      click_button
+    end
+    automated "should check the checkbox" do
+      check "TOS"
+      page.checked?("user_tos").should be_true
+    end
   end
 
-  it "should result in the value on being posted if not specified" do
+  context "when posting a form" do
     with_html <<-HTML
       <html>
         <form method="post" action="/login">
@@ -51,12 +71,19 @@ describe "check" do
       </html>
     HTML
 
-    webrat_session.should_receive(:post).with("/login", "remember_me" => "on")
-    check "remember_me"
-    click_button
+    simulated "should result in the value being posted" do
+      webrat_session.should_receive(:post).with("/login", "remember_me" => "on")
+      check "remember_me"
+      click_button
+    end
+    automated "should result in the value being posted" do
+      check "remember_me"
+      click_button
+      remote_app.params.should == {"remember_me" => "on"}
+    end
   end
 
-  it "should fail if the checkbox is disabled" do
+  context "when the checkbox is disabled" do
     with_html <<-HTML
       <html>
         <form method="post" action="/login">
@@ -66,10 +93,16 @@ describe "check" do
       </html>
     HTML
 
-    lambda { check "remember_me" }.should raise_error(Webrat::DisabledFieldError)
+    simulated "should raise an error" do
+      lambda { check "remember_me" }.should raise_error(Webrat::DisabledFieldError)
+    end
+    automated "should not raise an error or check the checkbox" do
+      lambda { check "remember_me" }.should_not raise_error
+      page.checked?("remember_me").should be_false
+    end
   end
 
-  it "should result in a custom value being posted" do
+  context "when a custom value is being posted" do
     with_html <<-HTML
       <html>
         <form method="post" action="/login">
@@ -79,25 +112,37 @@ describe "check" do
       </html>
     HTML
 
-    webrat_session.should_receive(:post).with("/login", "remember_me" => "yes")
-    check "remember_me"
-    click_button
+    simulated "should post the custom value" do
+      webrat_session.should_receive(:post).with("/login", "remember_me" => "yes")
+      check "remember_me"
+      click_button
+    end
+    automated "should post the custom value" do
+      check "remember_me"
+      click_button
+      remote_app.params.should == {"remember_me" => "yes"}
+    end
   end
 end
 
 describe "uncheck" do
-  it "should fail if no checkbox found" do
+  context "when no checkbox is found" do
     with_html <<-HTML
       <html>
       <form method="post" action="/login">
       </form>
       </html>
     HTML
-
-    lambda { uncheck "remember_me" }.should raise_error(Webrat::NotFoundError)
+  
+    simulated "should raise an error" do
+      lambda { uncheck "remember_me" }.should raise_error(Webrat::NotFoundError)
+    end
+    automated "should raise an error" do
+      lambda { uncheck "remember_me" }.should raise_error(Selenium::CommandError)
+    end
   end
-
-  it "should fail if input is not a checkbox" do
+  
+  context "when the input is not a checkbox" do
     with_html <<-HTML
       <html>
       <form method="post" action="/login">
@@ -106,10 +151,15 @@ describe "uncheck" do
       </html>
     HTML
 
-    lambda { uncheck "remember_me" }.should raise_error(Webrat::NotFoundError)
+    simulated "should raise an error" do
+      lambda { uncheck "remember_me" }.should raise_error(Webrat::NotFoundError)
+    end
+    automated "should not raise an error" do
+      lambda { uncheck "remember_me" }.should_not raise_error
+    end
   end
 
-  it "should fail if the checkbox is disabled" do
+  context "when the checkbox is disabled" do
     with_html <<-HTML
       <html>
       <form method="post" action="/login">
@@ -118,10 +168,16 @@ describe "uncheck" do
       </form>
       </html>
     HTML
-    lambda { uncheck "remember_me" }.should raise_error(Webrat::DisabledFieldError)
+    
+    simulated "should raise an error" do
+      lambda { uncheck "remember_me" }.should raise_error(Webrat::DisabledFieldError)
+    end
+    automated "should not raise an error" do
+      lambda { uncheck "remember_me" }.should_not raise_error
+    end
   end
 
-  it "should uncheck rails style checkboxes" do
+  context "when unchecking rails style checkboxes" do
     with_html <<-HTML
       <html>
       <form method="get" action="/login">
@@ -132,13 +188,20 @@ describe "uncheck" do
       </form>
       </html>
     HTML
-    webrat_session.should_receive(:get).with("/login", "user" => {"tos" => "0"})
-    check "TOS"
-    uncheck "TOS"
-    click_button
+    
+    simulated "should uncheck the checkbox" do
+      webrat_session.should_receive(:get).with("/login", "user" => {"tos" => "0"})
+      check "TOS"
+      uncheck "TOS"
+      click_button
+    end
+    automated "should uncheck the checkbox" do
+      check "TOS"
+      page.should _uncheck("user_tos")
+    end
   end
 
-  it "should result in value not being posted" do
+  context "when posting a form" do
     with_html <<-HTML
       <html>
       <form method="post" action="/login">
@@ -147,12 +210,20 @@ describe "uncheck" do
       </form>
       </html>
     HTML
-    webrat_session.should_receive(:post).with("/login", {})
-    uncheck "remember_me"
-    click_button
+    
+    simulated "should not post the checkbox value" do
+      webrat_session.should_receive(:post).with("/login", {})
+      uncheck "remember_me"
+      click_button
+    end
+    automated "should not post the checkbox value" do
+      uncheck "remember_me"
+      click_button
+      remote_app.params.should == {}
+    end
   end
 
-  it "should work with checkboxes with the same name" do
+  context "when posting a form where multiple checkboxes have the same name" do
     with_html <<-HTML
       <html>
       <form method="post" action="/login">
@@ -164,13 +235,22 @@ describe "uncheck" do
       </form>
       </html>
     HTML
-    webrat_session.should_receive(:post).with("/login", {"options" => ["1", "2"]})
-    check 'Option 1'
-    check 'Option 2'
-    click_button
+    
+    simulated "should post all checkbox values" do
+      webrat_session.should_receive(:post).with("/login", {"options" => ["1", "2"]})
+      check 'Option 1'
+      check 'Option 2'
+      click_button
+    end
+    automated "should post all checkbox values" do
+      check 'Option 1'
+      check 'Option 2'
+      click_button
+      remote_app.params.should == { "options" => ["1", "2"] }
+    end
   end
 
-  it "should uncheck rails style checkboxes nested inside a label" do
+  context "when working with rails style checkboxes nested inside a label" do
     with_html <<-HTML
       <html>
       <form method="get" action="/login">
@@ -183,9 +263,16 @@ describe "uncheck" do
       </form>
       </html>
     HTML
-    webrat_session.should_receive(:get).with("/login", "user" => {"tos" => "0"})
-    uncheck "TOS"
-    click_button
+    
+    simulated "should uncheck the checkbox" do
+      webrat_session.should_receive(:get).with("/login", "user" => {"tos" => "0"})
+      uncheck "TOS"
+      click_button
+    end
+    automated "should uncheck the checkbox" do
+      uncheck "TOS"
+      page.checked?("user_tos").should be_false
+    end
   end
 
 end
