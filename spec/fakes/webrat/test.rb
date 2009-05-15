@@ -1,8 +1,4 @@
 module Webrat #:nodoc:
-  def self.session_class #:nodoc:
-    TestSession
-  end
-
   class TestSession < Session #:nodoc:
     attr_accessor :response_body
     attr_writer :response_code

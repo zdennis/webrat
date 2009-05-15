@@ -12,7 +12,9 @@ describe "check" do
     HTML
 
     simulated "should raise an error" do
-      lambda { check "remember_me" }.should raise_error(Webrat::NotFoundError)
+      lambda { 
+        check "remember_me" 
+      }.should raise_error(Webrat::NotFoundError)
     end
     
     automated "should raise an error" do
@@ -55,6 +57,7 @@ describe "check" do
       check "TOS"
       click_button
     end
+    
     automated "should check the checkbox" do
       check "TOS"
       page.checked?("user_tos").should be_true
