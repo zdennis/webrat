@@ -1,6 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/../spec_helper")
 
 describe "choose" do
+ 
   it "should fail if no radio buttons found" do
     with_html <<-HTML
       <html>

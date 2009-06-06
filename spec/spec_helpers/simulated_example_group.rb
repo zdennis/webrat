@@ -1,4 +1,4 @@
-class SimulatedExampleGroup < Spec::Example::ExampleGroup
+module SimulatedExampleMethods
   def webrat_session
     unless @_webrat_session
       config = Webrat::Configuration.new
@@ -12,6 +12,9 @@ class SimulatedExampleGroup < Spec::Example::ExampleGroup
     raise "This doesn't look like HTML. Wrap it in a <html> tag" unless html =~ /^\s*<[^Hh>]*html/i
     webrat_session.response_body = html
   end  
-  
+end
+
+class SimulatedExampleGroup < Spec::Example::ExampleGroup
+  include SimulatedExampleMethods
   Spec::Example::ExampleGroupFactory.register(:simulated, self)
 end

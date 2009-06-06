@@ -1,4 +1,16 @@
-module SimulatorMethods
+module WebratExampleGroupMethods
+  def self.disable_automated
+    define_method :automated do
+      #no-op
+    end
+  end
+  
+  def self.disable_simulated
+    define_method :simulated do
+      #no-op
+    end
+  end
+  
   def automated(desc, &blk)
     example_group = Class.new(AutomatedExampleGroup)
     before_each_parts.each do |a|

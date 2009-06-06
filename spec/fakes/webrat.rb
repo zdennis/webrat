@@ -1,10 +1,10 @@
 module Webrat #:nodoc:
-  def self.session_class(config=nil) #:nodoc:
+  def self.session_class(config=Webrat.configuration) #:nodoc:
     case config.mode
-    when :test
-      TestSession
     when :selenium
       SeleniumSession
+    else 
+      TestSession
     end
   end
 end

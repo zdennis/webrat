@@ -9,10 +9,11 @@ webrat_path = File.expand_path(File.dirname(__FILE__) + "/../lib/")
 $LOAD_PATH.unshift(webrat_path) unless $LOAD_PATH.include?(webrat_path)
 
 require "webrat"
-Dir[File.dirname(__FILE__) + '/spec_helpers/*.rb'].each{ |f| require f }
 $LOAD_PATH << File.dirname(__FILE__) + '/fakes/'
 require File.expand_path(File.dirname(__FILE__) + "/fakes/webrat")
 require 'webrat/selenium'
+
+Dir[File.dirname(__FILE__) + '/spec_helpers/**/*.rb'].each{ |f| require f }
 
 module Webrat
   # @@previous_config = nil
@@ -28,7 +29,15 @@ end
 
 Spec::Runner.configure do |config|
   include Webrat::Methods
-  config.extend SimulatorMethods
+
+  if ARGV.include?('--skip-automated')
+    WebratExampleGroupMethods.disable_automated
+  elsif ARGV.include?('--skip-simulated')
+    WebratExampleGroupMethods.disable_simulated
+  end
+
+  config.extend WebratExampleGroupMethods
+  config.include SimulatedExampleMethods
 
   # config.before :each do
   #   Webrat.cache_config_for_test
