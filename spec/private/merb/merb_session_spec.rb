@@ -1,8 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + "/../../spec_helper")
 
+# when Merb loads it sets the manual spec example group
+# so we store the current example group and change it
+# back after merb loads
+example_group = ::Spec::ExampleGroup
 require "webrat/merb"
+::Spec::Example::ExampleGroupFactory.default(example_group)
 
 describe Webrat::MerbSession do
+  
   it "should not pass empty params if data is and empty hash" do
     session = Webrat::MerbSession.new
     response = OpenStruct.new
