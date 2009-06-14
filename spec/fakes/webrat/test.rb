@@ -1,4 +1,13 @@
 module Webrat #:nodoc:
+  def self.session_class #:nodoc:
+    case Webrat.configuration.mode
+    when :selenium
+      SeleniumSession
+    else 
+      TestSession
+    end
+  end
+
   class TestSession < Session #:nodoc:
     attr_accessor :response_body
     attr_writer :response_code

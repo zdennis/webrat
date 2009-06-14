@@ -1,13 +1,18 @@
 module WebratExampleGroupMethods
+
   def self.disable_automated
-    define_method :automated do
-      #no-op
-    end
+    AutomatedExampleGroup.disable_examples
   end
   
   def self.disable_simulated
-    define_method :simulated do
-      #no-op
+    SimulatedExampleGroup.disable_examples
+  end
+
+  def disable_examples
+    class << self
+      define_method :it do
+        #no-op
+      end
     end
   end
   

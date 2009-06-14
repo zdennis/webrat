@@ -1,9 +1,11 @@
 class AutomatedExampleGroup < Spec::Example::ExampleGroup
+  extend ::WebratExampleGroupMethods
+  
   def webrat_session
     unless @_webrat_session
-      config = Webrat::Configuration.new
+      config = Webrat.configuration
       config.mode = :selenium
-      @_webrat_session = ::Webrat.session_class(config).new
+      @_webrat_session = ::Webrat.session_class.new
     end
     @_webrat_session
   end  

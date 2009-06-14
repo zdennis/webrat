@@ -12,8 +12,8 @@ module Webrat
   class InfiniteRedirectError < WebratError
   end
 
-  def self.session_class(config=Webrat.configuration)
-    case config.mode
+  def self.session_class
+    case Webrat.configuration.mode
     when :rails
       RailsSession
     when :merb
@@ -30,7 +30,7 @@ module Webrat
       RackTestSession
     else
       raise WebratError.new(<<-STR)
-Unknown Webrat mode: #{config.mode.inspect}
+Unknown Webrat mode: #{Webrat.configuration.mode.inspect}
 
 Please ensure you have a Webrat configuration block that specifies a mode
 in your test_helper.rb, spec_helper.rb, or env.rb (for Cucumber).

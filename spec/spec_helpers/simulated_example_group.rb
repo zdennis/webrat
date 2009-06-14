@@ -1,9 +1,9 @@
-module SimulatedExampleMethods
+module SimulatedExampleMethods  
   def webrat_session
     unless @_webrat_session
-      config = Webrat::Configuration.new
-      config.mode = :test
-      @_webrat_session = ::Webrat.session_class(config).new
+      config = Webrat.configuration
+      config.mode = :merb
+      @_webrat_session = ::Webrat.session_class.new
     end
     @_webrat_session
   end
@@ -15,6 +15,7 @@ module SimulatedExampleMethods
 end
 
 class SimulatedExampleGroup < Spec::Example::ExampleGroup
+  extend ::WebratExampleGroupMethods
   include SimulatedExampleMethods
   Spec::Example::ExampleGroupFactory.register(:simulated, self)
 end
