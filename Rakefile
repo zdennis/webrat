@@ -49,8 +49,32 @@ task :publish_rdoc => :docs do
   sh "scp -r doc/ brynary.com:/apps/uploads/webrat"
 end
 
-desc "Run API and Core specs"
-Spec::Rake::SpecTask.new do |t|
+desc "Run simulated and automated API and Core specs"
+task :spec do
+  if ENV["WEBRAT"].blank?
+    Rake::Task["spec:simulated"].invoke
+    Rake::Task["spec:automated"].invoke
+  else
+    Rake::Task["spec:#{ENV['WEBRAT']}"].invoke
+  end
+end
+
+desc "Run automated API and Core specs"
+task "spec:automated" do |t|
+  ENV["WEBRAT"] = "automated"
+  Rake::Task["spec:api"].reenable
+  Rake::Task["spec:api"].invoke
+end
+
+desc "Run simulated API and Core specs"
+task "spec:simulated" do |t|
+  ENV["WEBRAT"] = "simulated"
+  Rake::Task["spec:api"].reenable
+  Rake::Task["spec:api"].invoke
+end
+
+desc "Use spec, spec:simulated, or spec:automated task. This is the API and Core spec definitions."
+Spec::Rake::SpecTask.new("spec:api") do |t|
   t.spec_opts = ['--options', "\"#{File.dirname(__FILE__)}/spec/spec.opts\""]
   t.spec_files = FileList['spec/public/**/*_spec.rb'] + FileList['spec/private/**/*_spec.rb']
 end
