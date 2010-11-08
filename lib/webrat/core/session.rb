@@ -113,6 +113,11 @@ For example:
     def request_page(url, http_method, data) #:nodoc:
       h = headers
       h['HTTP_REFERER'] = @current_url if @current_url
+      
+      if current_url && !url.starts_with?("http")
+        uri = URI.parse current_url
+        url = URI.join("#{uri.scheme || 'http'}://#{uri.host || 'example.org'}", url).to_s
+      end
 
       debug_log "REQUESTING PAGE: #{http_method.to_s.upcase} #{url} with #{data.inspect} and HTTP headers #{h.inspect}"
 
