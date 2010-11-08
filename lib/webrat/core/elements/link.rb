@@ -61,8 +61,14 @@ module Webrat
       @element["onclick"]
     end
 
+    def data_method
+      @element["data-method"]
+    end
+
     def http_method
-      if !onclick.blank? && onclick.include?("f.submit()")
+      if !data_method.blank?
+        data_method
+      elsif !onclick.blank? && onclick.include?("f.submit()")
         http_method_from_js_form
       else
         :get
